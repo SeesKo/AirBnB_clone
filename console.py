@@ -143,20 +143,6 @@ class HBNBCommand(cmd.Cmd):
         attribute_value_str = args[3]
         attribute_value = None
 
-        try:
-            # Attempt to cast the attribute value to the correct type
-            if isinstance(attribute_value_str, int):
-                attribute_value = int(attribute_value_str)
-            elif isinstance(attribute_value_str, float):
-                attribute_value = float(attribute_value_str)
-            elif isinstance(attribute_value_str, str):
-                attribute_value = attribute_value_str
-            else:
-                print("** value missing **")
-                return
-        except ValueError:
-            print("** value missing **")
-            return
 
         instance = self.instance_dict[key]
         setattr(instance, attribute_name, attribute_value)
