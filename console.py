@@ -145,7 +145,15 @@ class HBNBCommand(cmd.Cmd):
 
         try:
             # Attempt to cast the attribute value to the correct type
-            attribute_value = eval(attribute_value_str)
+            if isinstance(attribute_value_str, int):
+                attribute_value = int(attribute_value_str)
+            elif isinstance(attribute_value_str, float):
+                attribute_value = float(attribute_value_str)
+            elif isinstance(attribute_value_str, str):
+                attribute_value = attribute_value_str
+            else:
+                print("** invalid value **")
+                return
         except ValueError:
             print("** invalid value **")
             return
