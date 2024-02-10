@@ -8,13 +8,13 @@ This project is an implementation of a command-line interface (CLI) for an AirBn
 
 The command interpreter is implemented using the Python `cmd` module. It provides a set of commands to interact with and manipulate objects. Users can create new objects, retrieve objects from storage, perform operations, update attributes, and destroy objects.
 
-### How to Start:
+### How to Start
 
 To start the command interpreter, run the `console.py` script in the terminal.
 
     $ ./console.py
 
-### How to Use:
+### How to Use
 
 Once the command interpreter is running, use the following commands to manage AirBnB objects:
 
@@ -25,7 +25,7 @@ Once the command interpreter is running, use the following commands to manage Ai
 - `destroy`: Destroy a specific object.
 - `quit`: Exit the command interpreter.
 
-#### Examples
+### Examples
 
 ```bash
 $ ./console.py
