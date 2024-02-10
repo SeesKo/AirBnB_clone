@@ -132,12 +132,12 @@ class HBNBCommand(cmd.Cmd):
             print("** no instance found **")
             return
 
-        if len(args) < 3:
+        elif len(args) < 3:
             print("** attribute name missing **")
             return
 
-        attribute_name = args[2]
-        if len(args) < 4:
+        
+        elif len(args) < 4:
             print("** value missing **")
             return
 
