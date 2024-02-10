@@ -146,7 +146,7 @@ class HBNBCommand(cmd.Cmd):
         try:
             # Attempt to cast the attribute value to the correct type
             attribute_value = eval(attribute_value_str)
-        except TypeError:
+        except ValueError:
             print("** invalid value **")
             return
 
