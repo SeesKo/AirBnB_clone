@@ -152,10 +152,10 @@ class HBNBCommand(cmd.Cmd):
             elif isinstance(attribute_value_str, str):
                 attribute_value = attribute_value_str
             else:
-                print("** invalid value **")
+                print("** value missing **")
                 return
         except ValueError:
-            print("** invalid value **")
+            print("** value missing **")
             return
 
         instance = self.instance_dict[key]
