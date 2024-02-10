@@ -156,7 +156,7 @@ class HBNBCommand(cmd.Cmd):
 
     def do_help(self, args):
         """Prints help information for the provided command."""
-        cmd.Cmd.do_help(self, args)
+        super().do_help(args)
 
     def emptyline(self):
         """Executes nothing. Displays a new prompt."""
