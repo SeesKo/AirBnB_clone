@@ -14,8 +14,6 @@ class HBNBCommand(cmd.Cmd):
     HBNBCommand class provides a command-line interface.
     """
 
-    intro = ("Welcome to the HBNB Command Line Interface.\n"
-             "Type 'help' for more commands.\n")
     prompt = "(hbnb) "
 
     class_mapping = {'BaseModel': BaseModel, 'User': User}
