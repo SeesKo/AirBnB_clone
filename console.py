@@ -10,8 +10,10 @@ from models.user import User
 
 
 class HBNBCommand(cmd.Cmd):
-    intro = ("Welcome to the HBNB Command Line Interface.\n"
-             "Type 'help' for more commands.\n")
+    """
+    HBNBCommand class provides a command-line interface.
+    """
+
     prompt = "(hbnb) "
 
     class_mapping = {'BaseModel': BaseModel, 'User': User}
@@ -151,6 +153,10 @@ class HBNBCommand(cmd.Cmd):
         instance = self.instance_dict[key]
         setattr(instance, attribute_name, attribute_value)
         instance.save()
+
+    def do_help(self, args):
+        """Prints help information for the provided command."""
+        cmd.Cmd.do_help(self, args)
 
     def emptyline(self):
         """Executes nothing. Displays a new prompt."""
