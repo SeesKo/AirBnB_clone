@@ -5,6 +5,7 @@ Contains the unit test cases for the FileStorage class.
 
 import unittest
 import os
+import json
 from models.base_model import BaseModel
 from models.user import User
 from models.engine.file_storage import FileStorage
@@ -35,7 +36,6 @@ class TestFileStorage(unittest.TestCase):
         self.file_storage.new(user)
         self.file_storage.save()
 
-        """Create a new FileStorage instance to simulate program restart."""
         new_file_storage = FileStorage()
         new_file_storage.reload()
 
@@ -44,6 +44,38 @@ class TestFileStorage(unittest.TestCase):
         reloaded_user = new_file_storage.all()[key]
         self.assertIsInstance(reloaded_user, User)
         self.assertEqual(reloaded_user.id, user.id)
+
+    def test_save_multiple_objects(self):
+        """Test saving multiple objects to the file."""
+        user1 = User()
+        user2 = User()
+        self.file_storage.new(user1)
+        self.file_storage.new(user2)
+        self.file_storage.save()
+
+        new_file_storage = FileStorage()
+        new_file_storage.reload()
+
+        key1 = "{}.{}".format(user1.__class__.__name__, user1.id)
+        key2 = "{}.{}".format(user2.__class__.__name__, user2.id)
+        self.assertIn(key1, new_file_storage.all())
+        self.assertIn(key2, new_file_storage.all())
+
+    def test_reload_method(self):
+        """Test the reload() method."""
+        # Create an instance and add an object to it
+        user = User()
+        self.file_storage.new(user)
+        self.file_storage.save
+
+    def test_reload_corrupted_file(self):
+        """Test reloading from a corrupted JSON file."""
+        # Save an invalid JSON to the file
+        with open(FileStorage._FileStorage__file_path, 'w') as file:
+            file.write("invalid_json")
+
+        with self.assertRaises(json.JSONDecodeError):
+            self.file_storage.reload()
 
 
 if __name__ == '__main__':
