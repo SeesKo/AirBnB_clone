@@ -7,6 +7,7 @@ point for the HBNB Command-Line Interface.
 import cmd
 from models.base_model import BaseModel
 from models.user import User
+import json
 
 
 class HBNBCommand(cmd.Cmd):
@@ -143,6 +144,11 @@ class HBNBCommand(cmd.Cmd):
         attribute_value_str = args[3]
         attribute_value = None
 
+        try:
+            attribute_value = json.loads(attribute_value_str.replace("'", '"'))
+        except json.JSONDecodeError:
+            print("** invalid value **")
+            return
 
         instance = self.instance_dict[key]
         setattr(instance, attribute_name, attribute_value)
