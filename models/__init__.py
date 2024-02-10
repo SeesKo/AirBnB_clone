@@ -3,7 +3,7 @@
 This module initializes the FileStorage instance for the application.
 """
 
-from models.engine import file_storage
+from models.engine.file_storage import FileStorage
 from models.base_model import BaseModel
 from models.user import User
 from models.state import State
@@ -23,5 +23,5 @@ objects = {
         'Review': Review
         }
 
-storage = file_storage.FileStorage()
+storage = FileStorage()
 storage.reload()
