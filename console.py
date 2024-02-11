@@ -17,7 +17,15 @@ class HBNBCommand(cmd.Cmd):
 
     prompt = "(hbnb) "
 
-    class_mapping = {'BaseModel': BaseModel, 'User': User}
+    class_mapping = {
+        'BaseModel': BaseModel,
+        'User': User,
+        'Amenity': Amenity,
+        'City': City,
+        'Review': Review,
+        'State': State,
+        'Place': Place
+    }
     instance_dict = {}
 
     # ----- basic commands -----
@@ -87,15 +95,11 @@ class HBNBCommand(cmd.Cmd):
         del self.instance_dict[key]
 
     def do_all(self, arg):
-        """
-        Prints all string representations of instances
-        based on the class name.
-        """
+        """Prints all string representations of all instances."""
         args = arg.split()
         instances_list = []
 
         if not args:
-            # No class name provided, print all instances of all classes
             for key, value in self.instance_dict.items():
                 class_name, _ = key.split()
                 if class_name in self.class_mapping:
@@ -108,9 +112,11 @@ class HBNBCommand(cmd.Cmd):
             print("** class doesn't exist **")
             return
 
-        # Use the all() method of the corresponding class
-        instances = [str(instance) for instance in self.class_mapping[class_name].all()]
-        print(instances)
+        for key, value in self.instance_dict.items():
+            if key.startswith(class_name):
+                instances_list.append(str(value))
+
+        print(instances_list)
 
     def do_update(self, arg):
         """Updates an instance based on the class name and id."""
