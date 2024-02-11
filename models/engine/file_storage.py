@@ -7,6 +7,11 @@ import json
 import importlib
 from models.base_model import BaseModel
 from models.user import User
+from models.place import Place
+from models.state import State
+from models.city import City
+from models.amenity import Amenity
+from models.review import Review
 
 
 class FileStorage:
@@ -51,9 +56,7 @@ class FileStorage:
     def reload(self):
         """Deserializes the JSON file to __objects"""
         try:
-            with open(
-                FileStorage.__file_path, mode="r", encoding="utf-8"
-            ) as file:
+            with open(FileStorage.__file_path, mode="r", encoding="utf-8") as file:
                 deserialized_objects = json.load(file)
                 self._initialize_class_mapping()
                 for key, value in deserialized_objects.items():
