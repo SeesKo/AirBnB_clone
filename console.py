@@ -141,12 +141,9 @@ class HBNBCommand(cmd.Cmd):
             print("** value missing **")
             return
 
-        attribute_value_str = args[3]
-        attribute_value = None
-
         try:
             # Attempt to cast the attribute value to the correct type
-            attribute_value = json.loads(attribute_value_str.replace("'", '"'))
+            attribute_value = json.loads(args[3].replace("'", '"'))
         except json.JSONDecodeError:
             print("** invalid value **")
             return
