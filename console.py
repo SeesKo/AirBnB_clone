@@ -86,17 +86,20 @@ class HBNBCommand(cmd.Cmd):
         # Deletion of instance
         del self.instance_dict[key]
 
-
     def do_all(self, arg):
         """
         Prints all string representations of instances
-        based on the class name or calls the all() method.
+        based on the class name.
         """
         args = arg.split()
+        instances_list = []
 
         if not args:
             # No class name provided, print all instances of all classes
-            instances_list = [str(value) for value in self.instance_dict.values()]
+            for key, value in self.instance_dict.items():
+                class_name, _ = key.split()
+                if class_name in self.class_mapping:
+                    instances_list.append(str(value))
             print(instances_list)
             return
 
@@ -105,12 +108,9 @@ class HBNBCommand(cmd.Cmd):
             print("** class doesn't exist **")
             return
 
-        # Check if the class has an all() method
-        if hasattr(self.class_mapping[class_name], 'all'):
-            instances_list = [str(instance) for instance in self.class_mapping[class_name].all()]
-            print(instances_list)
-        else:
-            print("** class doesn't support all() method **")
+        # Use the all() method of the corresponding class
+        instances = [str(instance) for instance in self.class_mapping[class_name].all()]
+        print(instances)
 
     def do_update(self, arg):
         """Updates an instance based on the class name and id."""
