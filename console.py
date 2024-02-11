@@ -92,10 +92,10 @@ class HBNBCommand(cmd.Cmd):
         instances_list = []
 
         if not args:
-            for key, value in self.instance_dict.items():
-                class_name, _ = key.split()
-                if class_name in self.class_mapping:
-                    instances_list.append(str(value))
+            for class_name, cls in self.class_mapping.items():
+                instances_list.extend(
+                    str(instance) for instance in cls.all().values()
+                )
             print(instances_list)
             return
 
@@ -104,10 +104,10 @@ class HBNBCommand(cmd.Cmd):
             print("** class doesn't exist **")
             return
 
-        for key, value in self.instance_dict.items():
-            if key.startswith(class_name):
-                instances_list.append(str(value))
-
+        instances_list.extend(
+            str(instance)
+            for instance in self.class_mapping[class_name].all().values()
+        )
         print(instances_list)
 
     def do_update(self, arg):
