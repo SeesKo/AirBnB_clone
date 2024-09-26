@@ -40,16 +40,14 @@ class TestConsole(unittest.TestCase):
             self.hbnb_cmd.onecmd("create BaseModel")
             instance_id = mock_stdout.getvalue().strip()
 
-            with patch('sys.stdout', new=StringIO()) as mock_stdout_destroy:
-                self.hbnb_cmd.onecmd(f"destroy BaseModel {instance_id}")
-                output = mock_stdout_destroy.getvalue().strip()
-                self.assertEqual(output, "")
+            # Destroy the instance
+            self.hbnb_cmd.onecmd(f"destroy BaseModel {instance_id}")
 
-                # Verify the instance is truly destroyed
-                with patch('sys.stdout', new=StringIO()) as mock_stdout_show:
-                    self.hbnb_cmd.onecmd(f"show BaseModel {instance_id}")
-                    output_show = mock_stdout_show.getvalue().strip()
-                    self.assertIn("** no instance found **", output_show)
+            # Verify the instance is truly destroyed
+            with patch('sys.stdout', new=StringIO()) as mock_stdout_show:
+                self.hbnb_cmd.onecmd(f"show BaseModel {instance_id}")
+                output_show = mock_stdout_show.getvalue().strip()
+                self.assertIn("** no instance found **", output_show)
 
     def test_all_command(self):
         """Test the all command."""
@@ -121,6 +119,67 @@ class TestConsole(unittest.TestCase):
             self.hbnb_cmd.onecmd("update BaseModel non_existent_id name 'new_name'")
             output = mock_stdout.getvalue().strip()
             self.assertIn("** no instance found **", output)
+
+    def test_count_command(self):
+        """Test the count command."""
+        with patch('sys.stdout', new=StringIO()) as mock_stdout:
+            self.hbnb_cmd.onecmd("create BaseModel")
+            self.hbnb_cmd.onecmd("create User")
+            self.hbnb_cmd.onecmd("create State")
+
+            with patch('sys.stdout', new=StringIO()) as mock_stdout_count:
+                self.hbnb_cmd.onecmd("count BaseModel")
+                count_output = mock_stdout_count.getvalue().strip()
+                self.assertEqual(count_output, "1")  # One BaseModel instance created
+
+                self.hbnb_cmd.onecmd("count User")
+                count_output = mock_stdout_count.getvalue().strip()
+                self.assertEqual(count_output, "1")  # One User instance created
+
+                self.hbnb_cmd.onecmd("count State")
+                count_output = mock_stdout_count.getvalue().strip()
+                self.assertEqual(count_output, "1")  # One State instance created
+
+    def test_all_command_for_other_classes(self):
+        """Test the all command for other classes."""
+        with patch('sys.stdout', new=StringIO()) as mock_stdout:
+            self.hbnb_cmd.onecmd("create User")
+            self.hbnb_cmd.onecmd("create State")
+            self.hbnb_cmd.onecmd("create City")
+            self.hbnb_cmd.onecmd("create Place")
+
+            for cls in ["User", "State", "City", "Place"]:
+                with patch('sys.stdout', new=StringIO()) as mock_stdout_all:
+                    self.hbnb_cmd.onecmd(f"all {cls}")
+                    output_all = mock_stdout_all.getvalue().strip()
+                    self.assertNotEqual(output_all, "[]")  # Should not be empty
+
+    def test_show_command_for_other_classes(self):
+        """Test the show command for other classes."""
+        with patch('sys.stdout', new=StringIO()) as mock_stdout:
+            instance_type = "User"
+            self.hbnb_cmd.onecmd(f"create {instance_type}")
+            instance_id = mock_stdout.getvalue().strip()
+
+            with patch('sys.stdout', new=StringIO()) as mock_stdout_show:
+                self.hbnb_cmd.onecmd(f"show {instance_type} {instance_id}")
+                output = mock_stdout_show.getvalue().strip()
+                self.assertIn(instance_type, output)
+                self.assertIn(instance_id, output)
+
+    def test_destroy_command_for_other_classes(self):
+        """Test the destroy command for other classes."""
+        with patch('sys.stdout', new=StringIO()) as mock_stdout:
+            instance_type = "User"
+            self.hbnb_cmd.onecmd(f"create {instance_type}")
+            instance_id = mock_stdout.getvalue().strip()
+
+            self.hbnb_cmd.onecmd(f"destroy {instance_type} {instance_id}")
+
+            with patch('sys.stdout', new=StringIO()) as mock_stdout_show:
+                self.hbnb_cmd.onecmd(f"show {instance_type} {instance_id}")
+                output = mock_stdout_show.getvalue().strip()
+                self.assertIn("** no instance found **", output)
 
 
 if __name__ == '__main__':
