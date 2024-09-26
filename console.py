@@ -43,7 +43,13 @@ class HBNBCommand(cmd.Cmd):
 
         if match:
             class_name, command, params = match.groups()
-            param_list = json.loads(f"[{params}]")
+
+            # Use a try-except to handle JSON parsing for params
+            try:
+                param_list = json.loads(f"[{params}]")
+            except json.JSONDecodeError:
+                print("** invalid parameters format **")
+                return
 
             if class_name in self.class_mapping:
                 if command == "all":
@@ -66,7 +72,10 @@ class HBNBCommand(cmd.Cmd):
                     else:
                         self.do_destroy(f"{class_name} {param_list[0]}")
                 elif command == "update":
-                    if not param_list or len(param_list) < 3:
+                    if len(param_list) == 1 and isinstance(param_list[0], dict):
+                        # Handle dictionary update
+                        self.do_update_dict(f"{class_name} {json.dumps(param_list[0])}")
+                    elif not param_list or len(param_list) < 3:
                         if len(param_list) < 2:
                             print("** instance id missing **")
                         elif len(param_list) < 3:
@@ -217,6 +226,48 @@ class HBNBCommand(cmd.Cmd):
 
         instance = self.instance_dict[key]
         setattr(instance, attribute_name, attribute_value)
+        instance.save()  # Save the updated instance
+
+    def do_update_dict(self, arg):
+        """
+        Updates an instance based on the class name and
+        id with a dictionary representation.
+        """
+        args = arg.split(' ', 1)  # Split on the first space only
+        if len(args) < 2:
+            print("** class name missing **")
+            return
+
+        class_name = args[0]
+        if class_name not in self.class_mapping:
+            print("** class doesn't exist **")
+            return
+
+        # Get the dictionary representation
+        try:
+            attributes = json.loads(args[1].replace("'", '"'))
+        except json.JSONDecodeError:
+            print("** invalid dictionary representation **")
+            return
+
+        # Check for instance ID in the dictionary
+        instance_id = attributes.get('id')
+        if not instance_id:
+            print("** instance id missing **")
+            return
+
+        key = f"{class_name} {instance_id}"
+
+        if key not in self.instance_dict:
+            print("** no instance found **")
+            return
+
+        # Update attributes in the instance
+        instance = self.instance_dict[key]
+        for attr, value in attributes.items():
+            if attr != 'id':  # Don't try to update the id
+                setattr(instance, attr, value)
+
         instance.save()  # Save the updated instance
 
     def do_help(self, args):
