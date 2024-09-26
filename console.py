@@ -4,6 +4,7 @@ This module contains the HBNBCommand class, the entry
 point for the HBNB Command-Line Interface.
 """
 
+import re
 import cmd
 from models.base_model import BaseModel
 from models.user import User
@@ -32,6 +33,18 @@ class HBNBCommand(cmd.Cmd):
         'Place': Place
     }
     instance_dict = {}
+
+    def default(self, arg):
+        """Handle special cases for commands in dot notation like ClassName.all()."""
+        match = re.fullmatch(r"(\w+)\.(\w+)\(\)", arg)
+        if match:
+            class_name, command = match.groups()
+            if class_name in self.class_mapping and command == "all":
+                self.do_all(class_name)
+            else:
+                print("** class doesn't exist **")
+        else:
+            print(f"*** Unknown syntax: {arg}")
 
     # ----- basic commands -----
     def do_create(self, arg):
