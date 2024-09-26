@@ -39,10 +39,10 @@ class HBNBCommand(cmd.Cmd):
         Handle special cases for commands in dot
         notation like ClassName.all().
         """
-        match = re.fullmatch(r"(\w+)\.(\w+)\(\)", arg)
+        match = re.fullmatch(r"(\w+)\.(\w+)\((.*?)\)", arg)
 
         if match:
-            class_name, command = match.groups()
+            class_name, command, id_arg = match.groups()
 
             # Check if the class exists
             if class_name in self.class_mapping:
