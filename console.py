@@ -57,7 +57,10 @@ class HBNBCommand(cmd.Cmd):
                     )
                     print(count)
                 elif command == "show":
-                    self.do_show(id_arg)
+                    if not id_arg:
+                        print("** instance id missing **")
+                    else:
+                        self.do_show(f"{class_name} {id_arg}")
                 else:
                     print(f"*** Unknown command: {command}")
             else:
