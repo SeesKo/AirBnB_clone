@@ -42,14 +42,13 @@ class HBNBCommand(cmd.Cmd):
         match = re.fullmatch(r"(\w+)\.(\w+)\((.*?)\)", arg)
 
         if match:
-            class_name, command, id_arg = match.groups()
+            class_name, command, params = match.groups()
+            param_list = json.loads(f"[{params}]")
 
-            # Check if the class exists
             if class_name in self.class_mapping:
                 if command == "all":
-                    self.do_all(class_name)  # Call the existing method for all
+                    self.do_all(class_name)
                 elif command == "count":
-                    # Count the number of instances for the given class
                     count = sum(
                         1
                         for key in self.instance_dict
@@ -57,15 +56,30 @@ class HBNBCommand(cmd.Cmd):
                     )
                     print(count)
                 elif command == "show":
-                    if not id_arg:
+                    if not param_list or len(param_list) < 1:
                         print("** instance id missing **")
                     else:
-                        self.do_show(f"{class_name} {id_arg}")
+                        self.do_show(f"{class_name} {param_list[0]}")
                 elif command == "destroy":
-                    if not id_arg:  # Handle case where ID is missing
+                    if not param_list or len(param_list) < 1:
                         print("** instance id missing **")
                     else:
-                        self.do_destroy(f"{class_name} {id_arg}")
+                        self.do_destroy(f"{class_name} {param_list[0]}")
+                elif command == "update":
+                    if not param_list or len(param_list) < 3:
+                        if len(param_list) < 2:
+                            print("** instance id missing **")
+                        elif len(param_list) < 3:
+                            print("** attribute name missing **")
+                        else:
+                            print("** value missing **")
+                    else:
+                        self.do_update(
+                            f"{class_name} "
+                            f"{param_list[0]} "
+                            f"{param_list[1]} "
+                            f"{param_list[2]}"
+                        )
                 else:
                     print(f"*** Unknown command: {command}")
             else:
