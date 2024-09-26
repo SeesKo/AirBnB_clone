@@ -56,6 +56,8 @@ class HBNBCommand(cmd.Cmd):
                         if key.startswith(class_name)
                     )
                     print(count)
+                elif command == "show":
+                    self.do_show(id_arg)
                 else:
                     print(f"*** Unknown command: {command}")
             else:
