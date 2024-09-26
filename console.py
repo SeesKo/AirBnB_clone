@@ -188,41 +188,60 @@ class HBNBCommand(cmd.Cmd):
         if not args:
             print("** class name missing **")
             return
-
+    
         class_name = args[0]
         if class_name not in self.class_mapping:
             print("** class doesn't exist **")
             return
-
+    
         if len(args) < 2:
             print("** instance id missing **")
             return
-
+    
         instance_id = args[1]
         key = f"{class_name} {instance_id}"
-
+    
         if key not in self.instance_dict:
             print("** no instance found **")
             return
-
-        if len(args) < 3:
-            print("** attribute name missing **")
-            return
-
-        attribute_name = args[2]
-        if len(args) < 4:
-            print("** value missing **")
-            return
-
-        try:
-            # Attempt to cast the attribute value to the correct type
-            attribute_value = json.loads(args[3].replace("'", '"'))
-        except json.JSONDecodeError:
-            attribute_value = args[3]  # If it fails, keep it as a string
-
-        instance = self.instance_dict[key]
-        setattr(instance, attribute_name, attribute_value)
-        instance.save()  # Save the updated instance
+    
+        if len(args) == 3 and args[2].startswith('{') and args[2].endswith('}'):
+            # When JSON format is provided
+            try:
+                attributes = json.loads(args[2].replace("'", '"'))
+            except json.JSONDecodeError:
+                print("** invalid dictionary format **")
+                return
+    
+            instance = self.instance_dict[key]
+            for attribute_name, attribute_value in attributes.items():
+                try:
+                    # Attempt to cast the attribute value to the correct type
+                    attribute_value = json.loads(f'"{attribute_value}"')
+                except json.JSONDecodeError:
+                    pass
+                setattr(instance, attribute_name, attribute_value)
+            instance.save()  # Save the updated instance
+        else:
+            # Traditional update logic
+            if len(args) < 3:
+                print("** attribute name missing **")
+                return
+    
+            attribute_name = args[2]
+            if len(args) < 4:
+                print("** value missing **")
+                return
+    
+            try:
+                # Attempt to cast the attribute value to the correct type
+                attribute_value = json.loads(args[3].replace("'", '"'))
+            except json.JSONDecodeError:
+                attribute_value = args[3]  # If it fails, keep it as a string
+    
+            instance = self.instance_dict[key]
+            setattr(instance, attribute_name, attribute_value)
+            instance.save()  # Save the updated instance
 
     def do_help(self, args):
         """Prints help information for the provided command."""
