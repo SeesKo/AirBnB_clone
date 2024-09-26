@@ -40,20 +40,28 @@ class HBNBCommand(cmd.Cmd):
         notation like ClassName.all().
         """
         match = re.fullmatch(r"(\w+)\.(\w+)\(\)", arg)
-            if match:
-                class_name, command = match.groups()
-                if class_name in self.class_mapping:
-                    if command == "all":
-                        self.do_all(class_name)
-                    elif command == "count":
-                        count = sum(1 for key in self.instance_dict if key.startswith(class_name))
-                        print(count)
-                    else:
-                        print(f"*** Unknown command: {command}")
+
+        if match:
+            class_name, command = match.groups()
+
+            # Check if the class exists
+            if class_name in self.class_mapping:
+                if command == "all":
+                    self.do_all(class_name)  # Call the existing method for all
+                elif command == "count":
+                    # Count the number of instances for the given class
+                    count = sum(
+                        1
+                        for key in self.instance_dict
+                        if key.startswith(class_name)
+                    )
+                    print(count)
                 else:
-                    print("** class doesn't exist **")
+                    print(f"*** Unknown command: {command}")
             else:
-                print(f"*** Unknown syntax: {arg}")
+                print("** class doesn't exist **")
+        else:
+            print(f"*** Unknown syntax: {arg}")
 
     # ----- basic commands -----
     def do_create(self, arg):
