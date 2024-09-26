@@ -42,44 +42,55 @@ class HBNBCommand(cmd.Cmd):
     
         if match:
             class_name, command, params = match.groups()
-            
-            # Handle the 'update' command with JSON dictionary as the third argument
+    
+            # Handle the 'update' command with JSON dictionary
             if command == "update":
-                # This will handle both forms: update with a dictionary or with individual attributes
+                # Match for the JSON dictionary format
                 if re.fullmatch(r'".*",\s*\{.*\}', params):
                     id_match, json_dict = re.fullmatch(r'"(.*?)",\s*(\{.*\})', params).groups()
+                    # Pass the formatted string to do_update
                     self.do_update(f"{class_name} {id_match} {json_dict}")
                 else:
+                    # Try to parse params as a JSON list
                     try:
                         param_list = json.loads(f"[{params}]")
                     except json.JSONDecodeError:
-                        print("** invalid command format **")
+                        print("** invalid dictionary format **")
                         return
-                    
+    
+                    # Check length of params for required values
                     if len(param_list) < 2:
                         print("** instance id missing **")
-                    elif len(param_list) == 2:
-                        # Update without dictionary, using positional args: id, attribute name, and value
-                        self.do_update(f"{class_name} {param_list[0]} {param_list[1]} {param_list[2]}")
                     else:
-                        print("** invalid command format **")
+                        # Handle cases where we have id, attribute name, and value
+                        if len(param_list) == 2:
+                            print("** attribute name and value missing **")
+                        else:
+                            # Prepare args for do_update
+                            self.do_update(f"{class_name} {param_list[0]} {param_list[1]} {param_list[2]}")
+    
             else:
-                # Handle other commands like 'all', 'count', 'show', etc.
+                # Handle other commands: all, count, show, destroy
+                if class_name not in self.class_mapping:
+                    print("** class doesn't exist **")
+                    return
+                
+                # Handle 'all' command
                 if command == "all":
                     self.do_all(class_name)
                 elif command == "count":
                     count = sum(1 for key in self.instance_dict if key.startswith(class_name))
                     print(count)
                 elif command == "show":
-                    if len(params) > 0:
-                        self.do_show(f"{class_name} {params}")
-                    else:
+                    if not params:
                         print("** instance id missing **")
+                    else:
+                        self.do_show(f"{class_name} {params.strip('\"')}")
                 elif command == "destroy":
-                    if len(params) > 0:
-                        self.do_destroy(f"{class_name} {params}")
-                    else:
+                    if not params:
                         print("** instance id missing **")
+                    else:
+                        self.do_destroy(f"{class_name} {params.strip('\"')}")
                 else:
                     print(f"*** Unknown command: {command}")
         else:
@@ -193,7 +204,7 @@ class HBNBCommand(cmd.Cmd):
             return
     
         instance_id = args[1]
-        key = f"{class_name}.{instance_id}"
+        key = f"{class_name}.{instance_id}"  # Assuming dot notation for instance key
     
         if key not in self.instance_dict:
             print("** no instance found **")
