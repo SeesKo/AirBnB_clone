@@ -39,67 +39,49 @@ class HBNBCommand(cmd.Cmd):
         Handle special cases for commands in dot notation like ClassName.all().
         """
         match = re.fullmatch(r"(\w+)\.(\w+)\((.*?)\)", arg)
-
+    
         if match:
             class_name, command, params = match.groups()
-            # Handle the command with JSON dictionary
-            if re.fullmatch(r'".*",\s*\{.*\}', params):
-                id_match, json_dict = re.fullmatch(r'"(.*?)",\s*(\{.*\})', params).groups()
-                try:
-                    param_dict = json.loads(json_dict.replace("'", '"'))
-                except json.JSONDecodeError:
-                    print("** invalid dictionary format **")
-                    return
-
-                if class_name in self.class_mapping:
-                    if command == "update":
-                        self.do_update(f"{class_name} {id_match} {param_dict}")
-                    else:
-                        print(f"*** Unknown command: {command}")
+            
+            # Handle the 'update' command with JSON dictionary as the third argument
+            if command == "update":
+                # This will handle both forms: update with a dictionary or with individual attributes
+                if re.fullmatch(r'".*",\s*\{.*\}', params):
+                    id_match, json_dict = re.fullmatch(r'"(.*?)",\s*(\{.*\})', params).groups()
+                    self.do_update(f"{class_name} {id_match} {json_dict}")
                 else:
-                    print("** class doesn't exist **")
+                    try:
+                        param_list = json.loads(f"[{params}]")
+                    except json.JSONDecodeError:
+                        print("** invalid command format **")
+                        return
+                    
+                    if len(param_list) < 2:
+                        print("** instance id missing **")
+                    elif len(param_list) == 2:
+                        # Update without dictionary, using positional args: id, attribute name, and value
+                        self.do_update(f"{class_name} {param_list[0]} {param_list[1]} {param_list[2]}")
+                    else:
+                        print("** invalid command format **")
             else:
-                param_list = json.loads(f"[{params}]")
-
-                if class_name in self.class_mapping:
-                    if command == "all":
-                        self.do_all(class_name)
-                    elif command == "count":
-                        count = sum(
-                            1
-                            for key in self.instance_dict
-                            if key.startswith(class_name)
-                        )
-                        print(count)
-                    elif command == "show":
-                        if not param_list or len(param_list) < 1:
-                            print("** instance id missing **")
-                        else:
-                            self.do_show(f"{class_name} {param_list[0]}")
-                    elif command == "destroy":
-                        if not param_list or len(param_list) < 1:
-                            print("** instance id missing **")
-                        else:
-                            self.do_destroy(f"{class_name} {param_list[0]}")
-                    elif command == "update":
-                        if not param_list or len(param_list) < 3:
-                            if len(param_list) < 2:
-                                print("** instance id missing **")
-                            elif len(param_list) < 3:
-                                print("** attribute name missing **")
-                            else:
-                                print("** value missing **")
-                        else:
-                            self.do_update(
-                                f"{class_name} "
-                                f"{param_list[0]} "
-                                f"{param_list[1]} "
-                                f"{param_list[2]}"
-                            )
+                # Handle other commands like 'all', 'count', 'show', etc.
+                if command == "all":
+                    self.do_all(class_name)
+                elif command == "count":
+                    count = sum(1 for key in self.instance_dict if key.startswith(class_name))
+                    print(count)
+                elif command == "show":
+                    if len(params) > 0:
+                        self.do_show(f"{class_name} {params}")
                     else:
-                        print(f"*** Unknown command: {command}")
+                        print("** instance id missing **")
+                elif command == "destroy":
+                    if len(params) > 0:
+                        self.do_destroy(f"{class_name} {params}")
+                    else:
+                        print("** instance id missing **")
                 else:
-                    print("** class doesn't exist **")
+                    print(f"*** Unknown command: {command}")
         else:
             print(f"*** Unknown syntax: {arg}")
 
@@ -196,61 +178,66 @@ class HBNBCommand(cmd.Cmd):
     def do_update(self, arg):
         """Updates an instance based on the class name and id."""
         args = arg.split()
+        
         if not args:
             print("** class name missing **")
             return
-
+    
         class_name = args[0]
         if class_name not in self.class_mapping:
             print("** class doesn't exist **")
             return
-
+    
         if len(args) < 2:
             print("** instance id missing **")
             return
-
+    
         instance_id = args[1]
-        key = f"{class_name} {instance_id}"
-
+        key = f"{class_name}.{instance_id}"
+    
         if key not in self.instance_dict:
             print("** no instance found **")
             return
-
+    
+        instance = self.instance_dict[key]
+    
+        # Check if the third argument is a dictionary
         if len(args) == 3 and args[2].startswith('{') and args[2].endswith('}'):
             try:
+                # Parse the dictionary from the input argument
                 attributes = json.loads(args[2].replace("'", '"'))
             except json.JSONDecodeError:
                 print("** invalid dictionary format **")
                 return
-
-            instance = self.instance_dict[key]
+    
+            # Update the instance attributes using the dictionary
             for attribute_name, attribute_value in attributes.items():
-                try:
-                    # Attempt to cast the attribute value to the correct type
-                    attribute_value = json.loads(f'"{attribute_value}"')
-                except json.JSONDecodeError:
-                    pass
+                # You can add extra type checking if needed
                 setattr(instance, attribute_name, attribute_value)
-            instance.save()  # Save the updated instance
+    
+            instance.save()  # Save after updating
         else:
+            # Handle positional attribute update
             if len(args) < 3:
                 print("** attribute name missing **")
                 return
-
+    
             attribute_name = args[2]
+    
             if len(args) < 4:
                 print("** value missing **")
                 return
-
+    
             try:
-                # Attempt to cast the attribute value to the correct type
+                # Try to interpret the value (e.g., convert to int, float, etc.)
                 attribute_value = json.loads(args[3].replace("'", '"'))
             except json.JSONDecodeError:
-                attribute_value = args[3]  # If it fails, keep it as a string
-
-            instance = self.instance_dict[key]
+                # If parsing fails, keep the value as a string
+                attribute_value = args[3]
+    
+            # Update the instance with a single attribute and value
             setattr(instance, attribute_name, attribute_value)
-            instance.save()  # Save the updated instance
+            instance.save()  # Save after updating
 
     def do_help(self, args):
         """Prints help information for the provided command."""
