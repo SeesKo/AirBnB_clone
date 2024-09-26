@@ -35,16 +35,25 @@ class HBNBCommand(cmd.Cmd):
     instance_dict = {}
 
     def default(self, arg):
-        """Handle special cases for commands in dot notation like ClassName.all()."""
+        """
+        Handle special cases for commands in dot
+        notation like ClassName.all().
+        """
         match = re.fullmatch(r"(\w+)\.(\w+)\(\)", arg)
-        if match:
-            class_name, command = match.groups()
-            if class_name in self.class_mapping and command == "all":
-                self.do_all(class_name)
+            if match:
+                class_name, command = match.groups()
+                if class_name in self.class_mapping:
+                    if command == "all":
+                        self.do_all(class_name)
+                    elif command == "count":
+                        count = sum(1 for key in self.instance_dict if key.startswith(class_name))
+                        print(count)
+                    else:
+                        print(f"*** Unknown command: {command}")
+                else:
+                    print("** class doesn't exist **")
             else:
-                print("** class doesn't exist **")
-        else:
-            print(f"*** Unknown syntax: {arg}")
+                print(f"*** Unknown syntax: {arg}")
 
     # ----- basic commands -----
     def do_create(self, arg):
