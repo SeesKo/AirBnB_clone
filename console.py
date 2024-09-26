@@ -61,6 +61,11 @@ class HBNBCommand(cmd.Cmd):
                         print("** instance id missing **")
                     else:
                         self.do_show(f"{class_name} {id_arg}")
+                elif command == "destroy":
+                    if not id_arg:  # Handle case where ID is missing
+                        print("** instance id missing **")
+                    else:
+                        self.do_destroy(f"{class_name} {id_arg}")
                 else:
                     print(f"*** Unknown command: {command}")
             else:
