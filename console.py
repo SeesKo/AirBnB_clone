@@ -194,7 +194,8 @@ class HBNBCommand(cmd.Cmd):
             return
 
         instance_id = args[1]
-        key = class_name + ' ' + instance_id
+        key = f"{class_name} {instance_id}"
+
         if key not in self.instance_dict:
             print("** no instance found **")
             return
@@ -212,12 +213,11 @@ class HBNBCommand(cmd.Cmd):
             # Attempt to cast the attribute value to the correct type
             attribute_value = json.loads(args[3].replace("'", '"'))
         except json.JSONDecodeError:
-            print("** invalid value **")
-            return
+            attribute_value = args[3]  # If it fails, keep it as a string
 
         instance = self.instance_dict[key]
         setattr(instance, attribute_name, attribute_value)
-        instance.save()
+        instance.save()  # Save the updated instance
 
     def do_help(self, args):
         """Prints help information for the provided command."""
