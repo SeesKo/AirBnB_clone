@@ -72,9 +72,16 @@ class HBNBCommand(cmd.Cmd):
                     else:
                         self.do_destroy(f"{class_name} {param_list[0]}")
                 elif command == "update":
-                    if len(param_list) == 1 and isinstance(param_list[0], dict):
+                    if(
+                        len(param_list) == 2
+                        and isinstance(param_list[1], dict)
+                    ):
                         # Handle dictionary update
-                        self.do_update_dict(f"{class_name} {json.dumps(param_list[0])}")
+                        self.do_update_dict(
+                            f"{class_name} "
+                            f"{param_list[0]} "
+                            f"{json.dumps(param_list[1])}"
+                        )
                     elif not param_list or len(param_list) < 3:
                         if len(param_list) < 2:
                             print("** instance id missing **")
